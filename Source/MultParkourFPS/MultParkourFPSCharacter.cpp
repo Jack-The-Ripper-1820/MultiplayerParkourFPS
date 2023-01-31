@@ -7,6 +7,9 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/GameplayStatics.h"
+#include "OnlineSubsystem.h"
+#include "Interfaces/OnlineSessionInterface.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,6 +38,19 @@ AMultParkourFPSCharacter::AMultParkourFPSCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	if (OnlineSubsystem) {
+		OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
+
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Blue,
+				FString::Printf(TEXT("Found subsystem %s"), *OnlineSubsystem->GetSubsystemName().ToString())
+			);
+		}
+	}
 }
 
 void AMultParkourFPSCharacter::BeginPlay()
@@ -107,4 +123,25 @@ void AMultParkourFPSCharacter::SetHasRifle(bool bNewHasRifle)
 bool AMultParkourFPSCharacter::GetHasRifle()
 {
 	return bHasRifle;
+}
+
+void AMultParkourFPSCharacter::OpenLobby()
+{
+	UWorld* World = GetWorld();
+	if (World) {
+		World->ServerTravel("/Game/FirstPerson/Maps/Lobby?listen");
+	}
+}
+
+void AMultParkourFPSCharacter::CallOpenLevel(const FString& Address)
+{
+	UGameplayStatics::OpenLevel(this, *Address);
+}
+
+void AMultParkourFPSCharacter::CallClientTravel(const FString& Address)
+{
+	APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
+	if (PlayerController) {
+		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	}
 }

@@ -64,6 +64,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
 
+	UFUNCTION(BlueprintCallable)
+	void OpenLobby();
+	UFUNCTION(BlueprintCallable)
+	void CallOpenLevel(const FString& Address);
+
+	UFUNCTION(BlueprintCallable)
+	void CallClientTravel(const FString& Address);
+
+
+
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -81,6 +91,9 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	// Pointer to the online session interface
+	TSharedPtr<class IOnlineSession, ESPMode::ThreadSafe> OnlineSessionInterface;
 
 
 };
